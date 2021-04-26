@@ -1,3 +1,7 @@
+.vscode/
+.SFML/
+makefile
+test.cpp
 # Prerequisites
 *.d
 
