@@ -33,34 +33,39 @@ class Particle {
 
     }
 
-    // void collision(vector<Particle>& all)
-    // {
-    //     for(Particle& particle : all)
-    //     {   
-    //         if(&particle != this && sqrt(pow(particle.center[0] - center[0], 2) + pow(particle.center[1] - center[1], 2)) <= particle.radius + radius)
-    //         {   
-    //             //cout << "collision" << endl;
-    //             double m1 = radius;
-    //             double m2 = particle.radius;
+    void collision(vector<Particle>& all)
+    {
+        for(Particle& particle : all)
+        {   
+            if(&particle != this && sqrt(pow(particle.center[0] - center[0], 2) + pow(particle.center[1] - center[1], 2)) <= particle.radius + radius)
+            {   
+                double k = dy / dx;
+                Vector b = Vector(dy, -dx);
+                b = b / b.length();
+                v = v + b * (v * b * -2);
+                
 
-    //             double k1 = (m1 - m2) / (m1 + m2);
-    //             double k2 = (2 * m2) / (m1 + m2);
+                double m1 = radius;
+                double m2 = particle.radius;
 
-    //             v = v * k1 + particle.v * k2;
-    //         }
-    //     }
-    // }
+                double k1 = (m1 - m2) / (m1 + m2);
+                double k2 = (2 * m2) / (m1 + m2);
+
+                v = v * k1 + particle.v * k2;
+            }
+        }
+    }
 
 
     void collision(double dx, double dy, double n)
     {
         double k = dy / dx;
-        Vector b = Vector(-dx, dy);
+        Vector b = Vector(dy, -dx);
         b = b / b.length();
         if(abs(pos[1] - k * pos[0] - n) <= radius)
         {   
-            cout << "collision" << endl;
-            v = v * (-1) + b * (v * b * 2);
+            //cout << "collision" << endl;
+            v = v + b * (v * b * -2);
         }
     }
 
