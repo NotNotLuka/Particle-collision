@@ -12,32 +12,44 @@ using namespace std;
 
 int main()
 {   
-    int size;
-    int elapsed;
-    int x = 1000;
-    int y = 600;
+    double dy = 1; double dx = 3; double sx = 0;
+    int size;int elapsed;
+    int x = 1000;int y = 600;
     sf::Clock clock;
+
     sf::RenderWindow window(sf::VideoMode(x, y), "Particle collison", sf::Style::Close);
 
     vector<Particle> particles;
-    for(int i = 0; i < 100; i++)particles.push_back(Particle(x, y, particles));
+    for(int i = 0; i < 1; i++)particles.push_back(Particle(x, y));
+
+
+    particles[0].pos = {50, 300};
+    particles[0].radius = 10;
+    particles[0].v = {2, -3};
+
+
+    // particles[1].pos = {200, 300};
+    // particles[1].radius = 10;
+    // particles[1].v = {0, 0};
+    sf::RectangleShape line(sf::Vector2f(10000, 3));
+    line.setPosition(sx, 0);
+    line.rotate(atan2(dy, dx) * 180 / 3.1415926535897932386);
 
     while(window.isOpen())
     {
         window.clear(sf::Color::Black);
-        
-        elapsed = clock.getElapsedTime().asMilliseconds();
-        if(10 < elapsed)clock.restart();
+        window.draw(line);
         size = particles.size();
         for(int i = 0; i < size; i++)
-        {
-            if(10 < elapsed){particles[i].update_position(x, y);}
+        {   for(int j = 0; j < 1000; j++)
+            {
+                particles[i].collision(dx, dy, dy / dx * sx);
+                particles[i].update_position(x, y, 3000);
+            }
             sf::CircleShape shape = particles[i].draw();
             window.draw(shape);
         }
         
-
-
         sf::Event event;
         while (window.pollEvent(event))
         {
@@ -50,7 +62,7 @@ int main()
             }
            
         }
-        
+
         window.display();
     }
     return 0;

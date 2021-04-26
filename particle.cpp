@@ -1,58 +1,74 @@
+#include "vectors.cpp"
+
 class Particle {
     public:
-        int x;int y;
-        int vx; int vy;
-        int radius; int center[2];
-    Particle(int x_size, int y_size, vector<Particle> all)
+        Vector pos;
+        Vector v;
+        double radius; Vector center;
+    Particle(int x_size, int y_size)
         {
         bool overlap = true;
-        while(overlap)
-        {
-            x = rand() % x_size;
-            y = rand() % y_size;
-            int max_radius = 5;
 
-            if(x_size < x + (max_radius + 5) * 2)max_radius = (x_size - x) / 2 - 5;
-            if(y_size < y + (max_radius + 5) * 2)max_radius = (y_size - y) / 2 - 5;
+        pos[0] = rand() % x_size;
+        pos[1] = rand() % y_size;
 
-            radius = rand() % max_radius + 5;
-            center[0] = int(x + cos(45) * radius);
-            center[1] = int(y + sin(45) * radius);
+        //radius = rand() % 5 + 5;
+        radius = 10;
+        center = pos + (Vector (cos(45), sin(45)) * radius);
 
-            overlap = check_overlap(all);
-        }
-        vx = rand() % 10 - 5;vy = rand() % 10 - 5;
-        while(vx ==  0)vx = rand() % 10 - 5;
-        while(vy ==  0)vy = rand() % 10 - 5;
+        v[0] = rand() % 10 - 5;
+        v[1] = rand() % 10 - 5;
+    }
+
+    void update_position(int x_size, int y_size, double delta)
+    {  
+        pos = pos + v / delta;
+        center = pos + (Vector (cos(45), sin(45)) * radius); 
+
+        if (center[0] - radius < 0) {pos[0] += - (center[0] - radius) / 2; v[0] = -v[0];}
+        if (center[1] - radius < 0) {pos[1] += - (center[1] - radius) / 2; v[1] = -v[1];}
+
+        if (x_size < center[0] + radius){pos[0] -= 2 * (center[0] + radius - x_size); v[0] = -v[0];}
+        if (y_size < center[1] + radius){pos[1] -= 2 * (center[1] + radius - y_size); v[1] = -v[1];}
 
     }
-    bool check_overlap(vector<Particle> all)
+
+    // void collision(vector<Particle>& all)
+    // {
+    //     for(Particle& particle : all)
+    //     {   
+    //         if(&particle != this && sqrt(pow(particle.center[0] - center[0], 2) + pow(particle.center[1] - center[1], 2)) <= particle.radius + radius)
+    //         {   
+    //             //cout << "collision" << endl;
+    //             double m1 = radius;
+    //             double m2 = particle.radius;
+
+    //             double k1 = (m1 - m2) / (m1 + m2);
+    //             double k2 = (2 * m2) / (m1 + m2);
+
+    //             v = v * k1 + particle.v * k2;
+    //         }
+    //     }
+    // }
+
+
+    void collision(double dx, double dy, double n)
     {
-        for(Particle particle : all)
-        {
-            if((pow(particle.center[0] - center[0], 2) + pow(particle.center[1] - center[1], 2)) <= particle.radius + radius)return true;
+        double k = dy / dx;
+        Vector b = Vector(-dx, dy);
+        b = b / b.length();
+        if(abs(pos[1] - k * pos[0] - n) <= radius)
+        {   
+            cout << "collision" << endl;
+            v = v * (-1) + b * (v * b * 2);
         }
-        return false;
-    }
-
-    void update_position(int x_size, int y_size)
-    { 
-        x += vx; y += vy;
-        center[0] = int(x + cos(45) * radius);
-        center[1] = int(y + sin(45) * radius);
-
-        if (center[0] - radius < 0) {x += - int((center[0] - radius) / 2); vx = -vx;}
-        if (center[1] - radius < 0) {y += - int((center[1] - radius) / 2); vy = -vy;}
-
-        if (x_size < center[0] + radius){x -= 2 * (center[0] + radius - x_size); vx = -vx;}
-        if (y_size < center[1] + radius){y -= 2 * (center[1] + radius - y_size); vy = -vy;}
     }
 
     sf::CircleShape draw()
     {   
         sf::CircleShape shape(radius);
         shape.setFillColor(sf::Color(255, 255, 255));
-        shape.setPosition(x, y);
+        shape.setPosition(pos[0], pos[1]);
         return shape;
     }
 };
