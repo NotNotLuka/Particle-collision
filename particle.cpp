@@ -30,6 +30,7 @@ class Particle {
         
     }
 
+
     bool check_overlap(vector<Particle> all)
     {
         for(Particle particle : all)
@@ -38,6 +39,7 @@ class Particle {
         }
         return false;
     }
+
 
     void update_position(int x_size, int y_size, double delta)
     {  
@@ -52,6 +54,7 @@ class Particle {
         if (y_size < center[1] + radius){pos[1] -= 2 * (center[1] + radius - y_size); v_[1] = -v[1];}
 
     }
+
 
     void collision(vector<Particle>& all)
     {   int i = 0;
@@ -77,15 +80,12 @@ class Particle {
 
                     Vector a = Vector(b[1], -b[0]);
 
-
                     Vector vn = b * (v * b); Vector vn1 = b * (particle.v * b);
 
-                    Vector vt = a * (v * a);//Vector vn1 = a * (particle.v * a);
+                    Vector vt = a * (v * a);
 
                     vn = vn * k1 + vn1 * k2;
                     v_ = vn + vt;
-
-
                 }
 
             }else{if(in){collisions.erase(i);}}
