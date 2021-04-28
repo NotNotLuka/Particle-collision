@@ -1,10 +1,15 @@
 #include "vectors.cpp"
+#include <unordered_set>
+
+using namespace std;
 
 class Particle {
     public:
         Vector pos;
         Vector v;
         double radius; Vector center;
+        unordered_set<int> collisions;
+
     Particle(int x_size, int y_size)
         {
         bool overlap = true;
@@ -18,7 +23,7 @@ class Particle {
 
         v[0] = rand() % 10 - 5;
         v[1] = rand() % 10 - 5;
-    }
+        }
 
     void update_position(int x_size, int y_size, double delta)
     {  
@@ -34,40 +39,59 @@ class Particle {
     }
 
     void collision(vector<Particle>& all)
-    {
+    {   int i = 0;
+        bool in;
         for(Particle& particle : all)
-        {   
-            if(&particle != this && sqrt(pow(particle.center[0] - center[0], 2) + pow(particle.center[1] - center[1], 2)) <= particle.radius + radius)
+        {   i += 1;
+            in = collisions.find(i) != collisions.end();
+
+            if(&particle != this && (((particle.center[0] - center[0]) * (particle.center[0] - center[0])) + ((particle.center[1] - center[1]) * (particle.center[1] - center[1]))) <= (particle.radius + radius) * (particle.radius + radius))
             {   
-                double k = dy / dx;
-                Vector b = Vector(dy, -dx);
-                b = b / b.length();
-                v = v + b * (v * b * -2);
-                
+                collisions.insert(i);
+                if(!in)
+                {
+                    // double m1 = radius;
+                    // double m2 = particle.radius;
 
-                double m1 = radius;
-                double m2 = particle.radius;
+                    // double k1 = (m1 - m2) / (m1 + m2);
+                    // double k2 = (2 * m2) / (m1 + m2);
 
-                double k1 = (m1 - m2) / (m1 + m2);
-                double k2 = (2 * m2) / (m1 + m2);
+                    // v = v * k1 + particle.v * k2;
 
-                v = v * k1 + particle.v * k2;
-            }
+                    double x_collision = particle.pos[0] - (abs(particle.pos[0] - pos[0]) / (radius + particle.radius)) * particle.radius;
+                    double y_collision = particle.pos[1] - (abs(particle.pos[1] - pos[1]) / (radius + particle.radius)) * particle.radius;
+                    
+                    double k;
+                    double dx;
+                    double dy;
+                    if((y_collision - pos[1]) == 0)
+                    {
+                        dy = 10;
+                        dx = 0;
+
+                    }else 
+                        {
+                    
+                            k = (pos[0] - x_collision) / (y_collision - pos[1]);
+
+                            double n = y_collision - k * x_collision;
+
+                            double new_x = -100;
+                            double new_y = k * (new_x) + n;
+
+                            dy = y_collision - new_y;
+                            dx = x_collision - new_x;
+                        }
+
+                    Vector b = Vector(dy, -dx);
+                    b = b / b.length();
+                    v = v + b * (v * b * -2);
+                }
+
+            }else{if(in)collisions.erase(i);}
         }
     }
 
-
-    void collision(double dx, double dy, double n)
-    {
-        double k = dy / dx;
-        Vector b = Vector(dy, -dx);
-        b = b / b.length();
-        if(abs(pos[1] - k * pos[0] - n) <= radius)
-        {   
-            //cout << "collision" << endl;
-            v = v + b * (v * b * -2);
-        }
-    }
 
     sf::CircleShape draw()
     {   

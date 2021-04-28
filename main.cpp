@@ -4,6 +4,7 @@
 #include <SFML/Window.hpp>
 #include <SFML/Graphics.hpp>
 #include <cmath>
+#include <chrono>
 
 using namespace std;
 
@@ -20,35 +21,37 @@ int main()
     sf::RenderWindow window(sf::VideoMode(x, y), "Particle collison", sf::Style::Close);
 
     vector<Particle> particles;
-    for(int i = 0; i < 1; i++)particles.push_back(Particle(x, y));
+    for(int i = 0; i < 60; i++)particles.push_back(Particle(x, y));
 
 
-    particles[0].pos = {50, 300};
-    particles[0].radius = 10;
-    particles[0].v = {2, -3};
+    // particles[0].pos = {850, 300};
+    // particles[0].radius = 10;
+    // particles[0].v = {0.5, 0};
 
 
-    // particles[1].pos = {200, 300};
-    // particles[1].radius = 10;
-    // particles[1].v = {0, 0};
-    sf::RectangleShape line(sf::Vector2f(10000, 3));
-    line.setPosition(sx, 0);
-    line.rotate(atan2(dy, dx) * 180 / 3.1415926535897932386);
+    // particles[1].pos = {900, 300};
+    // particles[1].radius = 15;
+    // particles[1].v = {-0.5, 0};
+
 
     while(window.isOpen())
     {
         window.clear(sf::Color::Black);
-        window.draw(line);
+
         size = particles.size();
+        auto start = chrono::system_clock::now();
         for(int i = 0; i < size; i++)
-        {   for(int j = 0; j < 1000; j++)
-            {
-                particles[i].collision(dx, dy, dy / dx * sx);
-                particles[i].update_position(x, y, 3000);
+        {   //cout << particles[i].v[0] << " " << particles[i].v[1] << endl;
+            for(int j = 0; j < 100; j++)
+            {   
+                particles[i].collision(particles);
+                particles[i].update_position(x, y, 300);
             }
             sf::CircleShape shape = particles[i].draw();
             window.draw(shape);
         }
+        auto end = chrono::system_clock::now();
+        cout << chrono::duration_cast<chrono::milliseconds>(end - start).count() << endl;
         
         sf::Event event;
         while (window.pollEvent(event))
